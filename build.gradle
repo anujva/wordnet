@@ -1,0 +1,18 @@
+group 'com.coursera.princeton'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    compile name: 'algs4'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
