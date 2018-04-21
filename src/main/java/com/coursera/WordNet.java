@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 public class WordNet implements Iterable<String> {
     private Digraph digraph;
     private List<WordNetNode> wordNetNodes;
-    private Set<String> nouns;
+    private Map<String, WordNetNode> nouns;
 
     /**
      * The constructor takes in the name of the input files
@@ -21,18 +21,21 @@ public class WordNet implements Iterable<String> {
      */
     public WordNet(String synsets, String hypernyms) throws IOException {
         /*
-        * The first thing to do would be to read in the synsets file,
-        * and create the digraph nodes
+         * The first thing to do would be to read in the synsets file,
+         * and create the digraph nodes
          */
 
         BufferedReader reader = new BufferedReader(new FileReader(synsets));
         String line;
         wordNetNodes = new ArrayList<>();
-        nouns = new HashSet<>();
+        nouns = new HashMap<>();
         while ((line = reader.readLine()) != null) {
             String[] splitLine = line.split(",");
-            wordNetNodes.add(new WordNetNode(Integer.parseInt(splitLine[0]), splitLine[1], splitLine[2]));
-            Arrays.stream(splitLine[1].split(" ")).forEach(x -> nouns.add(x));
+            WordNetNode node = new WordNetNode(Integer.parseInt(splitLine[0]),
+                    splitLine[1], splitLine[2]);
+            wordNetNodes.add(node);
+            Arrays.stream(splitLine[1].split(" ")).forEach(x -> nouns.put(x,
+                    node));
         }
 
         digraph = new Digraph(wordNetNodes.size());
@@ -42,14 +45,16 @@ public class WordNet implements Iterable<String> {
         while ((line = reader.readLine()) != null) {
             String[] splitLine = line.split(",");
             for (int i = 1; i < splitLine.length; i++) {
-                digraph.addEdge(Integer.parseInt(splitLine[0]), Integer.parseInt(splitLine[i]));
+                digraph.addEdge(Integer.parseInt(splitLine[0]), Integer
+                        .parseInt(splitLine[i]));
             }
         }
     }
 
     public static void main(String[] args) throws IOException {
-        WordNet wordNet = new WordNet("C:\\Users\\anujv\\OneDrive\\Desktop\\wordnet-testing\\wordnet\\synsets.txt",
-                "C:\\Users\\anujv\\OneDrive\\Desktop\\wordnet-testing\\wordnet\\hypernyms.txt");
+        WordNet wordNet = new WordNet("/home/anuj/Downloads/wordnet/synsets" +
+                ".txt",
+                "/home/anuj/Downloads/wordnet/hypernyms.txt");
 
         for (String noun : wordNet) {
             System.out.println(noun);
@@ -61,7 +66,7 @@ public class WordNet implements Iterable<String> {
     }
 
     public boolean isNoun(String word) {
-        throw new UnsupportedOperationException();
+        return nouns.containsKey(word);
     }
 
     public int distance(String nounA, String nounB) {
@@ -79,7 +84,7 @@ public class WordNet implements Iterable<String> {
 
     @Override
     public void forEach(Consumer<? super String> action) {
-        for (String noun : nouns) {
+        for (String noun : nouns.keySet()) {
             action.accept(noun);
         }
     }
@@ -122,7 +127,7 @@ public class WordNet implements Iterable<String> {
         private Iterator<String> iterator;
 
         public WordNetIterator(WordNet wordNet) {
-            iterator = wordNet.nouns.iterator();
+            iterator = wordNet.nouns.keySet().iterator();
         }
 
         @Override
@@ -132,7 +137,6 @@ public class WordNet implements Iterable<String> {
 
         @Override
         public String next() {
-            if (!hasNext()) throw new NoSuchElementException();
             return iterator.next();
         }
     }
