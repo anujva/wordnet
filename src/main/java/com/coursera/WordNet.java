@@ -11,7 +11,7 @@ import java.util.function.Consumer;
 public class WordNet implements Iterable<String> {
     private Digraph digraph;
     private List<WordNetNode> wordNetNodes;
-    private Map<String, WordNetNode> nouns;
+    private Map<String, List<WordNetNode>> nouns;
 
     /**
      * The constructor takes in the name of the input files
@@ -34,8 +34,13 @@ public class WordNet implements Iterable<String> {
             WordNetNode node = new WordNetNode(Integer.parseInt(splitLine[0]),
                     splitLine[1], splitLine[2]);
             wordNetNodes.add(node);
-            Arrays.stream(splitLine[1].split(" ")).forEach(x -> nouns.put(x,
-                    node));
+            Arrays.stream(splitLine[1].split(" ")).forEach(x -> {
+                if (nouns.containsKey(x)) {
+                    nouns.get(x).add(node);
+                } else {
+                    nouns.put(x, Arrays.asList(node));
+                }
+            });
         }
 
         digraph = new Digraph(wordNetNodes.size());
@@ -70,6 +75,20 @@ public class WordNet implements Iterable<String> {
     }
 
     public int distance(String nounA, String nounB) {
+        //we have to find out what is the distance between,
+        //the two nodes, as in how many levels till they have
+        //a common ancestor
+        //From the noun// we can find the synsetId.
+        //from the synsetId we can find the connected nodes.
+        //One noun can have multiple synsetIds. All of them
+        //can be retrieved from polling the set that contains
+        //noun to wordnetnode mapping
+
+        List<WordNetNode> wordNetNodesA = nouns.get(nounA);
+        List<WordNetNode> wordNetNodesB = nouns.get(nounB);
+
+        //This looks like if I implement the SAP data structure
+        //I could reuse some of the API's that it has to return values
         throw new UnsupportedOperationException();
     }
 
