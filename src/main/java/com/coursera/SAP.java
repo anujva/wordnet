@@ -46,12 +46,24 @@ public class SAP {
                 }
             }
 
-            for (Integer neighbours : digraph.adj(vInt)) {
-                if (!vNeighbours.containsKey(neighbours)) {
-                    queueForV.add(neighbours);
-                    vNeighbours.put(neighbours, vNeighbours.get(vInt) + 1);
+            if (vInt != null) {
+                for (Integer neighbours : digraph.adj(vInt)) {
+                    if (!vNeighbours.containsKey(neighbours)) {
+                        queueForV.add(neighbours);
+                        vNeighbours.put(neighbours, vNeighbours.get(vInt) + 1);
+                    }
+                }
+            }
+
+            if (wInt != null) {
+                for (Integer neighbours : digraph.adj(wInt)) {
+                    if (!wNeighbours.containsKey(neighbours)) {
+                        queueForW.add(neighbours);
+                        wNeighbours.put(neighbours, wNeighbours.get(wInt) + 1);
+                    }
                 }
             }
         }
+        return length;
     }
 }
