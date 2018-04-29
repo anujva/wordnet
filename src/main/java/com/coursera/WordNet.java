@@ -7,9 +7,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class WordNet implements Iterable<String> {
     private Digraph digraph;
+    private SAP sap;
     private List<WordNetNode> wordNetNodes;
     private Map<String, List<WordNetNode>> nouns;
 
@@ -54,6 +56,7 @@ public class WordNet implements Iterable<String> {
                         .parseInt(splitLine[i]));
             }
         }
+        sap = new SAP(digraph);
     }
 
     public static void main(String[] args) throws IOException {
@@ -87,12 +90,20 @@ public class WordNet implements Iterable<String> {
         List<WordNetNode> wordNetNodesA = nouns.get(nounA);
         List<WordNetNode> wordNetNodesB = nouns.get(nounB);
 
+        List<Integer> lengthsA = wordNetNodesA.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
+        List<Integer> lengthsB = wordNetNodesB.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
         //This looks like if I implement the SAP data structure
         //I could reuse some of the API's that it has to return values
-        throw new UnsupportedOperationException();
+        return sap.length(lengthsA, lengthsB);
     }
 
     public String sap(String nounA, String nounB) {
+        List<WordNetNode> wordNetNodesA = nouns.get(nounA);
+        List<WordNetNode> wordNetNodesB = nouns.get(nounB);
+
+        List<Integer> ancestorA = wordNetNodesA.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
+        List<Integer> ancestorB = wordNetNodesB.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
+        int ancestor = sap.ancestor(ancestorA, ancestorB);
         return null;
     }
 
@@ -109,7 +120,7 @@ public class WordNet implements Iterable<String> {
     }
 
     private static final class WordNetNode {
-        private int synsetId;
+        private Integer synsetId;
         private Set<String> synset;
         private String gloss;
 
