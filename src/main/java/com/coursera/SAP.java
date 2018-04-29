@@ -4,6 +4,7 @@ import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
 
 import java.io.*;
+import java.sql.JDBCType;
 import java.util.*;
 
 public class SAP {
@@ -131,6 +132,40 @@ public class SAP {
             mapSAPResult.put(key, result);
             return result.ancestor;
         }
+    }
+
+    public int length(Iterable<Integer> v, Iterable<Integer> w) {
+        int length = -1;
+        int count = 0;
+        for (Integer first : v) {
+            for (Integer second : w) {
+                if (count++ == 0) {
+                    length = length(first, second);
+                } else {
+                    if (length > length(first, second)) {
+                        length = length(first, second);
+                    }
+                }
+            }
+        }
+        return length;
+    }
+
+    public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
+        int ancestor = -1;
+        int count = 0;
+        for (Integer first : v) {
+            for (Integer second : w) {
+                if (count++ == 0) {
+                    ancestor = ancestor(first, second);
+                } else {
+                    if (ancestor > ancestor(first, second)) {
+                        ancestor = ancestor(first, second);
+                    }
+                }
+            }
+        }
+        return ancestor;
     }
 
     public static void main(String[] args) {
