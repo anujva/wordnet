@@ -1,17 +1,36 @@
 package com.coursera;
 
 import edu.princeton.cs.algs4.Digraph;
+import edu.princeton.cs.algs4.In;
 
+import java.io.*;
 import java.util.*;
 
 public class SAP {
     private Digraph digraph;
+    private Map<String, SAPResult> mapSAPResult;
 
     public SAP(Digraph digraph) {
         this.digraph = digraph;
+        mapSAPResult = new HashMap<>();
     }
 
-    public int length(int v, int w) {
+    private static final class SAPResult {
+        Integer length;
+        Integer ancestor;
+
+        public SAPResult() {
+            this.length = -1;
+            ancestor = null;
+        }
+
+        public SAPResult(int length, int ancestor) {
+            this.length = length;
+            this.ancestor = ancestor;
+        }
+    }
+
+    private SAPResult calcLengthAndAncestor(int v, int w) {
         //from two synset Ids in the digraph..
         //find the common ancestor.. that will give the
         //length the idea is to find the shortest distance.
@@ -24,6 +43,7 @@ public class SAP {
         List<Integer> queueForW = new LinkedList<>();
 
         int length = Integer.MAX_VALUE;//the farthest possible away
+        int ancestor = -1;
         queueForV.add(v);
         queueForW.add(w);
         vNeighbours.put(v, 0);
@@ -39,6 +59,7 @@ public class SAP {
                 ancestors.put(vInt, wNeighbours.get(vInt) + vNeighbours.get(vInt));
                 if (length > wNeighbours.get(vInt) + vNeighbours.get(vInt)) {
                     length = wNeighbours.get(vInt) + vNeighbours.get(vInt);
+                    ancestor = vInt;
                 }
             }
 
@@ -47,6 +68,7 @@ public class SAP {
                 ancestors.put(wInt, vNeighbours.get(wInt) + wNeighbours.get(wInt));
                 if (length > vNeighbours.get(wInt) + wNeighbours.get(wInt)) {
                     length = vNeighbours.get(wInt) + wNeighbours.get(wInt);
+                    ancestor = wInt;
                 }
             }
 
@@ -68,24 +90,53 @@ public class SAP {
                 }
             }
         }
-        return length;
+
+        if (length == Integer.MAX_VALUE && ancestor == -1) {
+            length = -1;
+        }
+
+        return new SAPResult(length, ancestor);
+    }
+
+    public int length(int v, int w) {
+        if (v == w) return 0;
+        String key;
+        if (v < w) {
+            key = v + "" + w;
+        } else {
+            key = w + "" + v;
+        }
+        if (mapSAPResult.containsKey(key)) {
+            return mapSAPResult.get(key).length;
+        } else {
+            SAPResult result = calcLengthAndAncestor(v, w);
+            mapSAPResult.put(key, result);
+            return result.length;
+        }
+    }
+
+    public int ancestor(int v, int w) {
+        if (v == w) return v;
+        String key;
+        if (v < w) {
+            key = v + "" + w;
+        } else {
+            key = w + "" + v;
+        }
+
+        if (mapSAPResult.containsKey(key)) {
+            return mapSAPResult.get(key).ancestor;
+        } else {
+            SAPResult result = calcLengthAndAncestor(v, w);
+            mapSAPResult.put(key, result);
+            return result.ancestor;
+        }
     }
 
     public static void main(String[] args) {
-        Digraph digraph = new Digraph(13);
-        digraph.addEdge(1, 0);
-        digraph.addEdge(2, 0);
-        digraph.addEdge(3, 1);
-        digraph.addEdge(4, 1);
-        digraph.addEdge(5, 1);
-        digraph.addEdge(7, 3);
-        digraph.addEdge(8, 3);
-        digraph.addEdge(9, 5);
-        digraph.addEdge(10, 5);
-        digraph.addEdge(11, 10);
-        digraph.addEdge(12, 10);
-
+        In inputStream = new In("C:\\Users\\anujv\\Downloads\\wordnet\\digraph-ambiguous-ancestor.txt");
+        Digraph digraph = new Digraph(inputStream);
         SAP sap = new SAP(digraph);
-        System.out.println(sap.length(3, 11));
+        System.out.println(sap.length(0, 10));
     }
 }
