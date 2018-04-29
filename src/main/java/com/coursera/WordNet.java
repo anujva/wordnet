@@ -9,10 +9,10 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class WordNet implements Iterable<String> {
+public class WordNet {
     private Digraph digraph;
     private SAP sap;
-    private List<WordNetNode> wordNetNodes;
+    private Map<Integer, WordNetNode> wordNetNodes;
     private Map<String, List<WordNetNode>> nouns;
 
     /**
@@ -29,18 +29,18 @@ public class WordNet implements Iterable<String> {
 
         BufferedReader reader = new BufferedReader(new FileReader(synsets));
         String line;
-        wordNetNodes = new ArrayList<>();
+        wordNetNodes = new HashMap<>();
         nouns = new HashMap<>();
         while ((line = reader.readLine()) != null) {
             String[] splitLine = line.split(",");
             WordNetNode node = new WordNetNode(Integer.parseInt(splitLine[0]),
                     splitLine[1], splitLine[2]);
-            wordNetNodes.add(node);
+            wordNetNodes.put(Integer.parseInt(splitLine[0]), node);
             Arrays.stream(splitLine[1].split(" ")).forEach(x -> {
                 if (nouns.containsKey(x)) {
                     nouns.get(x).add(node);
                 } else {
-                    nouns.put(x, Arrays.asList(node));
+                    nouns.put(x, new ArrayList<>(Arrays.asList(node)));
                 }
             });
         }
@@ -60,17 +60,16 @@ public class WordNet implements Iterable<String> {
     }
 
     public static void main(String[] args) throws IOException {
-        WordNet wordNet = new WordNet("/home/anuj/Downloads/wordnet/synsets" +
-                ".txt",
-                "/home/anuj/Downloads/wordnet/hypernyms.txt");
+        WordNet wordNet = new WordNet("C:\\Users\\anujv\\Downloads\\wordnet\\synsets.txt",
+                "C:\\Users\\anujv\\Downloads\\wordnet\\hypernyms.txt");
 
-        for (String noun : wordNet) {
+        for (String noun : wordNet.nouns()) {
             System.out.println(noun);
         }
     }
 
     public Iterable<String> nouns() {
-        return this;
+        return nouns.keySet();
     }
 
     public boolean isNoun(String word) {
@@ -104,19 +103,7 @@ public class WordNet implements Iterable<String> {
         List<Integer> ancestorA = wordNetNodesA.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
         List<Integer> ancestorB = wordNetNodesB.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
         int ancestor = sap.ancestor(ancestorA, ancestorB);
-        return null;
-    }
-
-    @Override
-    public Iterator<String> iterator() {
-        return new WordNetIterator(this);
-    }
-
-    @Override
-    public void forEach(Consumer<? super String> action) {
-        for (String noun : nouns.keySet()) {
-            action.accept(noun);
-        }
+        return wordNetNodesA.get(ancestor).synset.stream().collect(Collectors.joining());
     }
 
     private static final class WordNetNode {
