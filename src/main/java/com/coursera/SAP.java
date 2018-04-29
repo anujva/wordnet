@@ -138,5 +138,6 @@ public class SAP {
         Digraph digraph = new Digraph(inputStream);
         SAP sap = new SAP(digraph);
         System.out.println(sap.length(0, 10));
+        System.out.println(sap.ancestor(0, 10));
     }
 }
