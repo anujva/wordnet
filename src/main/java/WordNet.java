@@ -1,8 +1,6 @@
 import edu.princeton.cs.algs4.Digraph;
+import edu.princeton.cs.algs4.In;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,49 +21,37 @@ public class WordNet {
          * The first thing to do would be to read in the synsets file,
          * and create the digraph nodes
          */
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(synsets));
-            String line;
-            wordNetNodes = new HashMap<>();
-            nouns = new HashMap<>();
-            while ((line = reader.readLine()) != null) {
-                String[] splitLine = line.split(",");
-                WordNetNode node = new WordNetNode(Integer.parseInt(splitLine[0]),
-                        splitLine[1], splitLine[2]);
-                wordNetNodes.put(Integer.parseInt(splitLine[0]), node);
-                Arrays.stream(splitLine[1].split(" ")).forEach(x -> {
-                    if (nouns.containsKey(x)) {
-                        nouns.get(x).add(node);
-                    } else {
-                        nouns.put(x, new ArrayList<>(Arrays.asList(node)));
-                    }
-                });
-            }
-
-            digraph = new Digraph(wordNetNodes.size());
-            reader.close();
-            reader = new BufferedReader(new FileReader(hypernyms));
-
-            while ((line = reader.readLine()) != null) {
-                String[] splitLine = line.split(",");
-                for (int i = 1; i < splitLine.length; i++) {
-                    digraph.addEdge(Integer.parseInt(splitLine[0]), Integer
-                            .parseInt(splitLine[i]));
+        //BufferedReader reader = new BufferedReader(new FileReader(synsets));
+        In reader = new In(synsets);
+        String line;
+        wordNetNodes = new HashMap<>();
+        nouns = new HashMap<>();
+        while ((line = reader.readLine()) != null) {
+            String[] splitLine = line.split(",");
+            WordNetNode node = new WordNetNode(Integer.parseInt(splitLine[0]),
+                    splitLine[1], splitLine[2]);
+            wordNetNodes.put(Integer.parseInt(splitLine[0]), node);
+            Arrays.stream(splitLine[1].split(" ")).forEach(x -> {
+                if (nouns.containsKey(x)) {
+                    nouns.get(x).add(node);
+                } else {
+                    nouns.put(x, new ArrayList<>(Arrays.asList(node)));
                 }
+            });
+        }
+
+        digraph = new Digraph(wordNetNodes.size());
+        reader.close();
+        reader = new In(hypernyms);
+
+        while ((line = reader.readLine()) != null) {
+            String[] splitLine = line.split(",");
+            for (int i = 1; i < splitLine.length; i++) {
+                digraph.addEdge(Integer.parseInt(splitLine[0]), Integer
+                        .parseInt(splitLine[i]));
             }
-            sap = new SAP(digraph);
-        } catch (IOException ex) {
-            ex.printStackTrace();
         }
-    }
-
-    public static void main(String[] args) throws IOException {
-        WordNet wordNet = new WordNet("C:\\Users\\anujv\\Downloads\\wordnet\\synsets.txt",
-                "C:\\Users\\anujv\\Downloads\\wordnet\\hypernyms.txt");
-
-        for (String noun : wordNet.nouns()) {
-            System.out.println(noun);
-        }
+        sap = new SAP(digraph);
     }
 
     public Iterable<String> nouns() {
@@ -100,8 +86,18 @@ public class WordNet {
         List<WordNetNode> wordNetNodesA = nouns.get(nounA);
         List<WordNetNode> wordNetNodesB = nouns.get(nounB);
 
-        List<Integer> ancestorA = wordNetNodesA.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
-        List<Integer> ancestorB = wordNetNodesB.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
+        //List<Integer> ancestorA = wordNetNodesA.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
+        List<Integer> ancestorA = new ArrayList<>();
+        for (WordNetNode node : wordNetNodesA) {
+            ancestorA.add(node.synsetId);
+        }
+
+        //List<Integer> ancestorB = wordNetNodesB.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
+        List<Integer> ancestorB = new ArrayList<>();
+        for (WordNetNode node : wordNetNodesB) {
+            ancestorB.add(node.synsetId);
+        }
+
         int ancestor = sap.ancestor(ancestorA, ancestorB);
         return wordNetNodesA.get(ancestor).synset.stream().collect(Collectors.joining());
     }

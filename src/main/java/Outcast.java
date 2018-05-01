@@ -1,8 +1,6 @@
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 
-import java.io.IOException;
-
 public class Outcast {
     private WordNet wordNet;
 
@@ -10,7 +8,7 @@ public class Outcast {
         this.wordNet = wordNet;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         WordNet wordNet = new WordNet(args[0], args[1]);
         Outcast outcast = new Outcast(wordNet);
         for (int t = 2; t < args.length; t++) {
