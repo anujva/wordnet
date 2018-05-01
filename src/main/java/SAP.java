@@ -30,7 +30,6 @@ public class SAP {
         //from source vertex v
         Map<Integer, Integer> vNeighbours = new HashMap<>();
         Map<Integer, Integer> wNeighbours = new HashMap<>();
-        Map<Integer, Integer> ancestors = new HashMap<>();
 
         List<Integer> queueForV = new LinkedList<>();
         List<Integer> queueForW = new LinkedList<>();
@@ -49,7 +48,6 @@ public class SAP {
             if (vInt != null && wNeighbours.containsKey(vInt)) {
                 //This would mean that we have seen this node on the bfs that was started from the
                 //node w.
-                ancestors.put(vInt, wNeighbours.get(vInt) + vNeighbours.get(vInt));
                 if (length > wNeighbours.get(vInt) + vNeighbours.get(vInt)) {
                     length = wNeighbours.get(vInt) + vNeighbours.get(vInt);
                     ancestor = vInt;
@@ -58,7 +56,6 @@ public class SAP {
 
             if (wInt != null && vNeighbours.containsKey(wInt)) {
                 //Same thing with w
-                ancestors.put(wInt, vNeighbours.get(wInt) + wNeighbours.get(wInt));
                 if (length > vNeighbours.get(wInt) + wNeighbours.get(wInt)) {
                     length = vNeighbours.get(wInt) + wNeighbours.get(wInt);
                     ancestor = wInt;
