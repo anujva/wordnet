@@ -1,5 +1,6 @@
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Topological;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +51,7 @@ public class WordNet {
         }
 
         digraph = new Digraph(wordNetNodes.size());
+        Topological topological = new Topological(digraph);
         reader.close();
         reader = new In(hypernyms);
 
@@ -129,10 +131,12 @@ public class WordNet {
         int ancestor = sap.ancestor(ancestorA, ancestorB);
 //        return wordNetNodesA.get(ancestor).synset.stream().collect
 // (Collectors.joining());
-        WordNetNode wordNetNode = wordNetNodesA.get(ancestor);
+        //ancestor is the synsetid.. which one of the wordnetNode for the corresponding
+        //synsetid?
+        WordNetNode wordNetNode = wordNetNodes.get(ancestor);
         String result = "";
-        for (String synset : wordNetNode.synset) {
-            result += synset + " ";
+        for (String val : wordNetNode.synset) {
+            result += val + " ";
         }
         return result.trim();
     }
