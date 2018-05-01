@@ -9,6 +9,10 @@ public class Outcast {
     }
 
     public static void main(String[] args) {
+        if(args.length < 3)  {
+            System.out.println("Too few arguments");
+            return;
+        }
         WordNet wordNet = new WordNet(args[0], args[1]);
         Outcast outcast = new Outcast(wordNet);
         for (int t = 2; t < args.length; t++) {
