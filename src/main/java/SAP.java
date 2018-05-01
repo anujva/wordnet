@@ -16,7 +16,9 @@ public class SAP {
     }
 
     public static void main(String[] args) {
-        In inputStream = new In("C:\\Users\\anujv\\Downloads\\wordnet\\digraph-ambiguous-ancestor.txt");
+        In inputStream = new In
+                ("C:\\Users\\anujv\\Downloads\\wordnet\\digraph-ambiguous" +
+                        "-ancestor.txt");
         Digraph digraph = new Digraph(inputStream);
         SAP sap = new SAP(digraph);
         System.out.println(sap.length(0, 10));
@@ -41,12 +43,15 @@ public class SAP {
         vNeighbours.put(v, 0);
         wNeighbours.put(w, 0);
         while (!queueForV.isEmpty() || !queueForW.isEmpty()) {
-            Integer vInt = !queueForV.isEmpty() ? ((LinkedList<Integer>) queueForV).poll() : null;
+            Integer vInt = !queueForV.isEmpty() ? ((LinkedList<Integer>)
+                    queueForV).poll() : null;
             //find the connections for the particular integer..
             //if there is a connection there..
-            Integer wInt = !queueForW.isEmpty() ? ((LinkedList<Integer>) queueForW).poll() : null;
+            Integer wInt = !queueForW.isEmpty() ? ((LinkedList<Integer>)
+                    queueForW).poll() : null;
             if (vInt != null && wNeighbours.containsKey(vInt)) {
-                //This would mean that we have seen this node on the bfs that was started from the
+                //This would mean that we have seen this node on the bfs that
+                // was started from the
                 //node w.
                 if (length > wNeighbours.get(vInt) + vNeighbours.get(vInt)) {
                     length = wNeighbours.get(vInt) + vNeighbours.get(vInt);
@@ -123,38 +128,52 @@ public class SAP {
         }
     }
 
-    public int length(Iterable<Integer> v, Iterable<Integer> w) {
+    private IterableResult calcResultUsingLength(Iterable<Integer> v,
+                                                 Iterable<Integer> w) {
         int length = -1;
+        int firstV = -1;
+        int secondV = -1;
         int count = 0;
         for (Integer first : v) {
             for (Integer second : w) {
                 if (count++ == 0) {
                     length = length(first, second);
+                    firstV = first;
+                    secondV = second;
                 } else {
                     if (length > length(first, second)) {
                         length = length(first, second);
+                        firstV = first;
+                        secondV = second;
                     }
                 }
             }
         }
-        return length;
+
+        return new IterableResult(length, firstV, secondV);
+    }
+
+    public int length(Iterable<Integer> v, Iterable<Integer> w) {
+        if (v == null || w == null) throw new IllegalArgumentException();
+        return calcResultUsingLength(v, w).length;
     }
 
     public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
-        int ancestor = -1;
-        int count = 0;
-        for (Integer first : v) {
-            for (Integer second : w) {
-                if (count++ == 0) {
-                    ancestor = ancestor(first, second);
-                } else {
-                    if (ancestor > ancestor(first, second)) {
-                        ancestor = ancestor(first, second);
-                    }
-                }
-            }
+        if (v == null || w == null) throw new IllegalArgumentException();
+        return ancestor(calcResultUsingLength(v, w).first, calcResultUsingLength
+                (v, w).second);
+    }
+
+    private static class IterableResult {
+        Integer length;
+        Integer first;
+        Integer second;
+
+        public IterableResult(Integer length, Integer first, Integer second) {
+            this.length = length;
+            this.first = first;
+            this.second = second;
         }
-        return ancestor;
     }
 
     private static final class SAPResult {
