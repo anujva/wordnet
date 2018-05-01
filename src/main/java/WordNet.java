@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class WordNet {
     private Digraph digraph;
@@ -83,8 +82,16 @@ public class WordNet {
         List<WordNetNode> wordNetNodesA = nouns.get(nounA);
         List<WordNetNode> wordNetNodesB = nouns.get(nounB);
 
-        List<Integer> lengthsA = wordNetNodesA.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
-        List<Integer> lengthsB = wordNetNodesB.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
+//        List<Integer> lengthsA = wordNetNodesA.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
+        List<Integer> lengthsA = new ArrayList<>();
+        for (WordNetNode node : wordNetNodesA) {
+            lengthsA.add(node.synsetId);
+        }
+//        List<Integer> lengthsB = wordNetNodesB.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
+        List<Integer> lengthsB = new ArrayList<>();
+        for (WordNetNode node : wordNetNodesB) {
+            lengthsB.add(node.synsetId);
+        }
         //This looks like if I implement the SAP data structure
         //I could reuse some of the API's that it has to return values
         return sap.length(lengthsA, lengthsB);
@@ -107,7 +114,13 @@ public class WordNet {
         }
 
         int ancestor = sap.ancestor(ancestorA, ancestorB);
-        return wordNetNodesA.get(ancestor).synset.stream().collect(Collectors.joining());
+//        return wordNetNodesA.get(ancestor).synset.stream().collect(Collectors.joining());
+        WordNetNode wordNetNode = wordNetNodesA.get(ancestor);
+        String result = "";
+        for(String synset : wordNetNode.synset) {
+            result += synset+" ";
+        }
+        return result.trim();
     }
 
     private static final class WordNetNode {
