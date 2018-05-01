@@ -1,15 +1,7 @@
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class WordNet {
     private Digraph digraph;
@@ -29,6 +21,8 @@ public class WordNet {
          * and create the digraph nodes
          */
         //BufferedReader reader = new BufferedReader(new FileReader(synsets));
+        if (synsets == null || hypernyms == null) throw new
+                IllegalArgumentException();
         In reader = new In(synsets);
         String line;
         wordNetNodes = new HashMap<>();
@@ -66,10 +60,13 @@ public class WordNet {
     }
 
     public boolean isNoun(String word) {
+        if (word == null) throw new IllegalArgumentException();
         return nouns.containsKey(word);
     }
 
     public int distance(String nounA, String nounB) {
+        if (nounA == null || nounB == null)
+            throw new IllegalArgumentException();
         //we have to find out what is the distance between,
         //the two nodes, as in how many levels till they have
         //a common ancestor
@@ -81,13 +78,16 @@ public class WordNet {
 
         List<WordNetNode> wordNetNodesA = nouns.get(nounA);
         List<WordNetNode> wordNetNodesB = nouns.get(nounB);
-
-//        List<Integer> lengthsA = wordNetNodesA.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
+        if (wordNetNodesA == null || wordNetNodesB == null) throw new
+                IllegalArgumentException();
+//        List<Integer> lengthsA = wordNetNodesA.stream().collect(Collectors
+// .mapping(x -> x.synsetId, Collectors.toList()));
         List<Integer> lengthsA = new ArrayList<>();
         for (WordNetNode node : wordNetNodesA) {
             lengthsA.add(node.synsetId);
         }
-//        List<Integer> lengthsB = wordNetNodesB.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
+//        List<Integer> lengthsB = wordNetNodesB.stream().collect(Collectors
+// .mapping(x -> x.synsetId, Collectors.toList()));
         List<Integer> lengthsB = new ArrayList<>();
         for (WordNetNode node : wordNetNodesB) {
             lengthsB.add(node.synsetId);
@@ -98,27 +98,33 @@ public class WordNet {
     }
 
     public String sap(String nounA, String nounB) {
+        if (nounA == null || nounB == null)
+            throw new IllegalArgumentException();
         List<WordNetNode> wordNetNodesA = nouns.get(nounA);
         List<WordNetNode> wordNetNodesB = nouns.get(nounB);
-
-        //List<Integer> ancestorA = wordNetNodesA.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
+        if (wordNetNodesA == null || wordNetNodesB == null) throw new
+                IllegalArgumentException();
+        //List<Integer> ancestorA = wordNetNodesA.stream().collect(Collectors
+        // .mapping(x -> x.synsetId, Collectors.toList()));
         List<Integer> ancestorA = new ArrayList<>();
         for (WordNetNode node : wordNetNodesA) {
             ancestorA.add(node.synsetId);
         }
 
-        //List<Integer> ancestorB = wordNetNodesB.stream().collect(Collectors.mapping(x -> x.synsetId, Collectors.toList()));
+        //List<Integer> ancestorB = wordNetNodesB.stream().collect(Collectors
+        // .mapping(x -> x.synsetId, Collectors.toList()));
         List<Integer> ancestorB = new ArrayList<>();
         for (WordNetNode node : wordNetNodesB) {
             ancestorB.add(node.synsetId);
         }
 
         int ancestor = sap.ancestor(ancestorA, ancestorB);
-//        return wordNetNodesA.get(ancestor).synset.stream().collect(Collectors.joining());
+//        return wordNetNodesA.get(ancestor).synset.stream().collect
+// (Collectors.joining());
         WordNetNode wordNetNode = wordNetNodesA.get(ancestor);
         String result = "";
-        for(String synset : wordNetNode.synset) {
-            result += synset+" ";
+        for (String synset : wordNetNode.synset) {
+            result += synset + " ";
         }
         return result.trim();
     }
@@ -132,12 +138,6 @@ public class WordNet {
             this.synsetId = synsetId;
             String[] splitSynset = synset.split(" ");
             this.synset = new HashSet<>(Arrays.asList(splitSynset));
-            this.gloss = gloss;
-        }
-
-        public WordNetNode(int synsetId, Set<String> synset, String gloss) {
-            this.synsetId = synsetId;
-            this.synset = synset;
             this.gloss = gloss;
         }
 
