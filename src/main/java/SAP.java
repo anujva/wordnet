@@ -1,11 +1,10 @@
-package com.coursera;
-
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
 
-import java.io.*;
-import java.sql.JDBCType;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public class SAP {
     private Digraph digraph;
@@ -16,19 +15,12 @@ public class SAP {
         mapSAPResult = new HashMap<>();
     }
 
-    private static final class SAPResult {
-        Integer length;
-        Integer ancestor;
-
-        public SAPResult() {
-            this.length = -1;
-            ancestor = null;
-        }
-
-        public SAPResult(int length, int ancestor) {
-            this.length = length;
-            this.ancestor = ancestor;
-        }
+    public static void main(String[] args) {
+        In inputStream = new In("C:\\Users\\anujv\\Downloads\\wordnet\\digraph-ambiguous-ancestor.txt");
+        Digraph digraph = new Digraph(inputStream);
+        SAP sap = new SAP(digraph);
+        System.out.println(sap.length(0, 10));
+        System.out.println(sap.ancestor(0, 10));
     }
 
     private SAPResult calcLengthAndAncestor(int v, int w) {
@@ -168,11 +160,18 @@ public class SAP {
         return ancestor;
     }
 
-    public static void main(String[] args) {
-        In inputStream = new In("C:\\Users\\anujv\\Downloads\\wordnet\\digraph-ambiguous-ancestor.txt");
-        Digraph digraph = new Digraph(inputStream);
-        SAP sap = new SAP(digraph);
-        System.out.println(sap.length(0, 10));
-        System.out.println(sap.ancestor(0, 10));
+    private static final class SAPResult {
+        Integer length;
+        Integer ancestor;
+
+        public SAPResult() {
+            this.length = -1;
+            ancestor = null;
+        }
+
+        public SAPResult(int length, int ancestor) {
+            this.length = length;
+            this.ancestor = ancestor;
+        }
     }
 }

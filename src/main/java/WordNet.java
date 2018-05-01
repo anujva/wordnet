@@ -1,12 +1,9 @@
-package com.coursera;
-
 import edu.princeton.cs.algs4.Digraph;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 public class WordNet {
@@ -21,42 +18,45 @@ public class WordNet {
      * @param synsets
      * @param hypernyms
      */
-    public WordNet(String synsets, String hypernyms) throws IOException {
+    public WordNet(String synsets, String hypernyms) {
         /*
          * The first thing to do would be to read in the synsets file,
          * and create the digraph nodes
          */
-
-        BufferedReader reader = new BufferedReader(new FileReader(synsets));
-        String line;
-        wordNetNodes = new HashMap<>();
-        nouns = new HashMap<>();
-        while ((line = reader.readLine()) != null) {
-            String[] splitLine = line.split(",");
-            WordNetNode node = new WordNetNode(Integer.parseInt(splitLine[0]),
-                    splitLine[1], splitLine[2]);
-            wordNetNodes.put(Integer.parseInt(splitLine[0]), node);
-            Arrays.stream(splitLine[1].split(" ")).forEach(x -> {
-                if (nouns.containsKey(x)) {
-                    nouns.get(x).add(node);
-                } else {
-                    nouns.put(x, new ArrayList<>(Arrays.asList(node)));
-                }
-            });
-        }
-
-        digraph = new Digraph(wordNetNodes.size());
-        reader.close();
-        reader = new BufferedReader(new FileReader(hypernyms));
-
-        while ((line = reader.readLine()) != null) {
-            String[] splitLine = line.split(",");
-            for (int i = 1; i < splitLine.length; i++) {
-                digraph.addEdge(Integer.parseInt(splitLine[0]), Integer
-                        .parseInt(splitLine[i]));
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(synsets));
+            String line;
+            wordNetNodes = new HashMap<>();
+            nouns = new HashMap<>();
+            while ((line = reader.readLine()) != null) {
+                String[] splitLine = line.split(",");
+                WordNetNode node = new WordNetNode(Integer.parseInt(splitLine[0]),
+                        splitLine[1], splitLine[2]);
+                wordNetNodes.put(Integer.parseInt(splitLine[0]), node);
+                Arrays.stream(splitLine[1].split(" ")).forEach(x -> {
+                    if (nouns.containsKey(x)) {
+                        nouns.get(x).add(node);
+                    } else {
+                        nouns.put(x, new ArrayList<>(Arrays.asList(node)));
+                    }
+                });
             }
+
+            digraph = new Digraph(wordNetNodes.size());
+            reader.close();
+            reader = new BufferedReader(new FileReader(hypernyms));
+
+            while ((line = reader.readLine()) != null) {
+                String[] splitLine = line.split(",");
+                for (int i = 1; i < splitLine.length; i++) {
+                    digraph.addEdge(Integer.parseInt(splitLine[0]), Integer
+                            .parseInt(splitLine[i]));
+                }
+            }
+            sap = new SAP(digraph);
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
-        sap = new SAP(digraph);
     }
 
     public static void main(String[] args) throws IOException {
@@ -140,7 +140,7 @@ public class WordNet {
         }
     }
 
-    public static class WordNetIterator implements Iterator<String> {
+    private static class WordNetIterator implements Iterator<String> {
         private Iterator<String> iterator;
 
         public WordNetIterator(WordNet wordNet) {
